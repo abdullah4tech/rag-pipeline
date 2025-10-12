@@ -1,12 +1,24 @@
 {
   "name": "rag-pipeline",
-  "version": "1.0.50",
+  "version": "1.0.0",
+  "description": "A production-ready RAG pipeline with PDF ingestion and AI-powered querying",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "build": "bun build src/index.ts --outdir ./dist --target bun",
+    "lint": "echo 'Add linting here'",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "elysia": "latest"
+    "@elysiajs/cors": "^1.4.0",
+    "@qdrant/js-client-rest": "^1.15.1",
+    "axios": "^1.12.2",
+    "dotenv": "^17.2.3",
+    "elysia": "^1.4.11",
+    "gpt-3-encoder": "^1.1.4",
+    "pdf-parse": "^2.2.9"
   },
   "devDependencies": {
     "bun-types": "latest"
