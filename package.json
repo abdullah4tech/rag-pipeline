@@ -13,12 +13,16 @@
   },
   "dependencies": {
     "@elysiajs/cors": "^1.4.0",
+    "@google/genai": "^1.24.0",
+    "@google/generative-ai": "^0.24.1",
     "@qdrant/js-client-rest": "^1.15.1",
     "axios": "^1.12.2",
     "dotenv": "^17.2.3",
     "elysia": "^1.4.11",
     "gpt-3-encoder": "^1.1.4",
-    "pdf-parse": "^2.2.9"
+    "pdf-parse": "^2.2.9",
+    "pdf-poppler": "^0.2.3",
+    "pdf2pic": "^3.2.0"
   },
   "devDependencies": {
     "bun-types": "latest"

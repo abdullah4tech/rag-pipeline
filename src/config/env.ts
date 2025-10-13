@@ -7,13 +7,13 @@ function getEnvVar(name: string, defaultValue?: string): string {
   return value;
 }
 
-export const GEMINI_EMBED_URL = getEnvVar("GEMINI_EMBED_URL");
-export const GEMINI_GEN_URL = getEnvVar("GEMINI_GEN_URL");
+export const GEMINI_EMBED_URL = getEnvVar("GEMINI_EMBED_URL", "https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:batchEmbedContents");
+export const GEMINI_GEN_URL = getEnvVar("GEMINI_GEN_URL", "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent");
 export const GEMINI_API_KEY = getEnvVar("GEMINI_API_KEY");
 export const QDRANT_URL = getEnvVar("QDRANT_URL", "http://localhost:6333");
 export const QDRANT_API_KEY = getEnvVar("QDRANT_API_KEY"); // Optional for auth
 export const COLLECTION_NAME = getEnvVar("COLLECTION_NAME", "pdf_vectors");
-export const VECTOR_SIZE = parseInt(getEnvVar("VECTOR_SIZE", "768")); // Default for many models
+export const VECTOR_SIZE = parseInt(getEnvVar("VECTOR_SIZE", "3072")); // gemini-embedding-001 default size
 export const PORT = parseInt(getEnvVar("PORT", "5000"));
 
 // Validation

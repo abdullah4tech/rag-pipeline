@@ -54,33 +54,6 @@ export async function chunkText(text: string, opts: ChunkOptions): Promise<TextC
     return chunks;
   } catch (error) {
     console.error('Error chunking text:', error);
-    // Fallback to simple word-based chunking
-    return simpleWordChunking(text, opts);
+    throw error;
   }
-}
-
-function simpleWordChunking(text: string, opts: ChunkOptions): TextChunk[] {
-  const chunkSize = opts.chunkSize || 800;
-  const overlap = opts.overlap || 100;
-  const words = text.split(/\s+/);
-  const chunks: TextChunk[] = [];
-  let idx = 0;
-  
-  for (let i = 0; i < words.length; i += chunkSize - overlap) {
-    const chunkWords = words.slice(i, i + chunkSize);
-    const chunkText = chunkWords.join(" ").trim();
-    
-    if (chunkText.length > 0) {
-      chunks.push({
-        id: `${opts.docId}:${opts.page || 0}:${idx}`,
-        text: chunkText,
-        doc_id: opts.docId,
-        page: opts.page || 0,
-        chunk_index: idx,
-      });
-      idx++;
-    }
-  }
-  
-  return chunks;
 }

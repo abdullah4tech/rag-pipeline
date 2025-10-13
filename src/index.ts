@@ -103,12 +103,17 @@ async function startServer() {
         };
       }
     })
+    .get("/test", ({ set }) => {
+      set.headers['Content-Type'] = 'text/html';
+      return Bun.file('./test-interface.html');
+    })
     .use(ingestRoute())
     .use(queryRoute());
 
   // Start server
   app.listen(PORT);
   console.log(`🚀 RAG Pipeline server running on http://localhost:${PORT}`);
+  console.log(`🧪 Test Interface: http://localhost:${PORT}/test`);
   console.log(`📚 API Documentation:`);
   console.log(`  - Health: GET http://localhost:${PORT}/health`);
   console.log(`  - Stats: GET http://localhost:${PORT}/query/stats`);

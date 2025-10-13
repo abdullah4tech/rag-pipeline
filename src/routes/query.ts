@@ -25,7 +25,7 @@ export function queryRoute() {
         const startTime = Date.now();
         
         try {
-          const { question, top_k = 5, doc_id, min_score = 0.0 } = body as QueryRequest;
+          const { question, top_k = 8, doc_id, min_score = 0.0 } = body as QueryRequest;
           
           // Validation
           if (!question || question.trim().length === 0) {

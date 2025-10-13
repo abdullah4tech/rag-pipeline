@@ -65,6 +65,24 @@ async function ensureCollection(): Promise<void> {
         const actualSize = vectorConfig.size;
         if (actualSize !== VECTOR_SIZE) {
           console.warn(`⚠️  Vector size mismatch: collection has ${actualSize}, config expects ${VECTOR_SIZE}`);
+          console.log(`🔄 Recreating collection with correct vector size...`);
+          
+          // Delete and recreate collection with correct dimensions
+          await client.deleteCollection(COLLECTION_NAME);
+          console.log(`🗑️  Deleted old collection with incorrect dimensions`);
+          
+          await client.createCollection(COLLECTION_NAME, {
+            vectors: { 
+              size: VECTOR_SIZE, 
+              distance: "Cosine" 
+            },
+            optimizers_config: {
+              default_segment_number: 2,
+              max_segment_size: 20000,
+            },
+            replication_factor: 1,
+          });
+          console.log(`✅ Recreated collection '${COLLECTION_NAME}' with ${VECTOR_SIZE} dimensions`);
         }
       }
     }
