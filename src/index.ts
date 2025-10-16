@@ -29,6 +29,12 @@ async function startServer() {
 
   // Create Elysia app
   const app = new Elysia()
+    .use(cors({
+      origin: "*", // Allow all origins
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      credentials: true
+    }))
     .onError(({ code, error, set }) => {
       console.error(`❌ Server error [${code}]:`, error);
       

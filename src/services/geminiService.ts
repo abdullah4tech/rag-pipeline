@@ -288,12 +288,7 @@ function buildPrompt(question: string, context: string): string {
 
 INSTRUCTIONS:
 1. Answer directly and clearly based on the context provided
-2. Use proper markdown formatting with correct line breaks:
-   - Use ## for main headers (with blank lines before/after)
-   - Use **bold** for important points
-   - Use bullet points (- or *) for lists (each on new line)
-   - Leave blank lines between sections
-   - Ensure proper spacing around headers and lists
+2. Use proper markdown formatting with correct line breaks
 3. Be conversational and helpful
 4. If the context doesn't fully answer the question, say what you can answer and note what's missing
 5. Don't mention "the document" or "the context" - just provide the information naturally
