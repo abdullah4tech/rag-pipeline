@@ -42,10 +42,16 @@ async function embedChunksWithGemini(chunks: TextChunk[]): Promise<EmbeddedChunk
     
     const batchVectors = await embedTextsWithGemini(batch.map(c => c.text));
     
+    // Validate batch embeddings before continuing
     for (let j = 0; j < batch.length; j++) {
+      const vector = batchVectors[j];
+      if (!vector || vector.length === 0) {
+        throw new Error(`Failed to generate embedding for chunk ${i + j + 1}/${chunks.length}: empty vector received`);
+      }
+      
       embeddedChunks.push({
         ...batch[j],
-        vector: batchVectors[j] || []
+        vector: vector
       });
     }
     
@@ -91,37 +97,55 @@ async function embedTextsWithGemini(texts: string[]): Promise<number[][]> {
       }
 
       // Ensure all embeddings have values
-      const embeddings = response.embeddings.map(embedding => {
-        if (!embedding.values) {
-          throw new Error("Embedding values are missing");
+      const embeddings = response.embeddings.map((embedding, index) => {
+        if (!embedding.values || embedding.values.length === 0) {
+          throw new Error(`Embedding values missing for text ${index + 1}/${texts.length}`);
         }
         return embedding.values;
       });
 
-      return embeddings;
-
-    } catch (error) {
-      console.error(`❌ Gemini embedding attempt ${attempt}/${MAX_RETRIES} failed:`, {
-        error: error instanceof Error ? error.message : String(error),
-        textsCount: texts.length
-      });
-
-      // Don't retry on certain errors
-      if (error instanceof Error) {
-        if (error.message.includes('400') || error.message.includes('401') || error.message.includes('403')) {
-          throw error;
+      console.log(`✅ Successfully generated ${embeddings.length} embeddings with dimension ${embeddings[0]?.length || 0}`);
+      
+      // Validate all embeddings have the same dimension
+      const expectedDimension = embeddings[0]?.length || 0;
+      for (let i = 0; i < embeddings.length; i++) {
+        if (embeddings[i].length !== expectedDimension) {
+          throw new Error(`Embedding dimension mismatch for text ${i + 1}: expected ${expectedDimension}, got ${embeddings[i].length}`);
         }
       }
 
-      // Retry on rate limiting or server errors
-      if (attempt < MAX_RETRIES) {
-        const delay = RETRY_DELAY * Math.pow(2, attempt - 1);
-        console.log(`⏳ Retrying in ${delay}ms...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-        continue;
+      return embeddings;
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error(`❌ Gemini embedding attempt ${attempt}/${MAX_RETRIES} failed:`, {
+        error: errorMessage,
+        textsCount: texts.length,
+        attempt: attempt
+      });
+
+      // Don't retry on authentication/authorization errors
+      if (error instanceof Error) {
+        if (errorMessage.includes('400') || errorMessage.includes('401') || errorMessage.includes('403') || 
+            errorMessage.includes('API_KEY') || errorMessage.includes('permission')) {
+          throw new Error(`Authentication/Authorization error: ${errorMessage}`);
+        }
+        
+        // Don't retry on quota/rate limit exceeded (different from temporary rate limiting)
+        if (errorMessage.includes('quota') || errorMessage.includes('exceeded')) {
+          throw new Error(`API quota exceeded: ${errorMessage}`);
+        }
       }
 
-      throw error;
+      // This is the last attempt
+      if (attempt === MAX_RETRIES) {
+        throw new Error(`Embedding generation failed after ${MAX_RETRIES} attempts: ${errorMessage}`);
+      }
+
+      // Retry on temporary errors (rate limiting, server errors, network issues)
+      const delay = RETRY_DELAY * Math.pow(2, attempt - 1);
+      console.log(`⏳ Retrying in ${delay}ms... (attempt ${attempt + 1}/${MAX_RETRIES})`);
+      await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
 
